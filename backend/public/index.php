@@ -6,20 +6,26 @@ namespace App;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-header('Content-Type: application/json');
+use App\Core\Container;
+use App\Core\Router;
 
-// Respuesta inicial del Sistema Operativo Matrix
-$response = [
-    'system' => 'Matrix OS',
-    'version' => '5.0.2050',
-    'status' => 'ONLINE',
-    'message' => 'Connection to Motherboard established. Awaiting operator input.',
-    'modules_loaded' => [
-        'Auth',
-        'Terminal',
-        'Channels',
-        'NeuralLink'
-    ]
-];
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-echo json_encode($response, JSON_PRETTY_PRINT);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
+
+// Inicializar Contenedor
+$container = Container::build();
+
+// Inicializar Router
+$router = new Router();
+
+// Extraer info request
+$httpMethod = $_SERVER['REQUEST_METHOD'];
+$uri = $_SERVER['REQUEST_URI'];
+
+// Ejecutar
+$router->dispatch($httpMethod, $uri, $container);
