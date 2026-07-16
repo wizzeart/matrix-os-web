@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATRIX OS - NEXT GEN SOCIAL</title>
+    <link rel="stylesheet" href="./src/styles/terminal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Efecto CRT global -->
+    <div class="crt-overlay"></div>
+    <div class="scanlines"></div>
+
+    <!-- Fondo de lluvia Matrix (Canvas) -->
+    <canvas id="matrix-bg"></canvas>
+
+    <!-- UI del Sistema Operativo -->
+    <div id="os-container">
+        <div id="terminal-wrapper">
+            <div id="terminal-output"></div>
+            <div id="terminal-input-line" style="display: none;">
+                <span class="prompt">operator@matrix-os:~$</span>
+                <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
+                <div class="cursor"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shaders & Lógica Principal -->
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+:root {
+    --matrix-green: #00ff41;
+    --matrix-dark-green: #008f11;
+    --bg-color: #030303;
+    --terminal-font: 'Share Tech Mono', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    color: var(--matrix-green);
+    font-family: var(--terminal-font);
+    overflow: hidden;
+}
+
+/* Efectos CRT y Scanlines */
+.crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle, rgba(0,255,65,0.05) 0%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.2) 50%,
+        rgba(0,0,0,0.2)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 11;
+    animation: scroll-scanlines 10s linear infinite;
+}
+
+@keyframes scroll-scanlines {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100vh; }
+}
+
+/* Fondo Lluvia Matrix */
+#matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    opacity: 0.3; /* Tenue para no estorbar la terminal */
+}
+
+/* Contenedor del SO */
+#os-container {
+    position: relative;
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Terminal principal */
+#terminal-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    text-shadow: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-dark-green);
+}
+
+#terminal-output {
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.log-line {
+    margin: 2px 0;
+}
+
+.log-line.system { color: #88ff88; }
+.log-line.error { color: #ff3333; text-shadow: 0 0 5px #ff0000; }
+.log-line.glitch { animation: glitch 0.2s linear infinite alternate; }
+
+#terminal-input-line {
+    display: flex;
+    align-items: center;
+}
+
+.prompt {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#cmd-input {
+    background: transparent;
+    border: none;
+    color: var(--matrix-green);
+    font-family: var(--terminal-font);
+    font-size: 1rem;
+    flex: 1;
+    outline: none;
+    text-shadow: 0 0 5px var(--matrix-green);
+    caret-color: transparent; /* Ocultamos el caret nativo para usar el custom */
+}
+
+/* Cursor custom */
+.cursor {
+    width: 10px;
+    height: 1.2rem;
+    background-color: var(--matrix-green);
+    animation: blink 1s step-end infinite;
+    display: inline-block;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes glitch {
+    0% { transform: translate(0) }
+    20% { transform: translate(-2px, 1px) }
+    40% { transform: translate(-1px, -1px) }
+    60% { transform: translate(2px, 1px) }
+    80% { transform: translate(1px, -1px) }
+    100% { transform: translate(0) }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 255, 65, 0.1); 
+}
+::-webkit-scrollbar-thumb {
+    background: var(--matrix-dark-green); 
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--matrix-green); 
+}
