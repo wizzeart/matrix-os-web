@@ -1,0 +1,17 @@
+{
+  "name": "matrix-os-cli",
+  "version": "1.0.0",
+  "description": "Native Matrix OS Terminal Client",
+  "main": "index.js",
+  "bin": {
+    "matrix-os": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "readline-sync": "^1.4.10",
+    "ws": "^8.16.0"
+  }
+}
