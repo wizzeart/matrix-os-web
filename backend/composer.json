@@ -3,7 +3,9 @@
     "description": "The Matrix OS Backend - DDD, CQRS Architecture",
     "type": "project",
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "cboden/ratchet": "^0.4.4",
+        "php-amqplib/php-amqplib": "^3.7"
     },
     "autoload": {
         "psr-4": {
