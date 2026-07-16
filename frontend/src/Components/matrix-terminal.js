@@ -6,6 +6,7 @@ export class MatrixTerminal extends HTMLElement {
         this.worker.onmessage = this.handleWorkerMessage.bind(this);
         this.history = [];
         this.historyIndex = -1;
+        this.copilotChatMode = false;
     }
 
     connectedCallback() {
@@ -25,6 +26,18 @@ export class MatrixTerminal extends HTMLElement {
                 this.printOutput(`[${data.sender}] ${data.message}`, 'chat-msg');
             } else if (data.type === 'system') {
                 this.printOutput(`[SYSTEM] ${data.message}`, 'system');
+            }
+        });
+
+        // Listen for copilot chat activation
+        document.addEventListener('open-copilot-chat', () => {
+            this.enableCopilotChatMode();
+        });
+
+        // Listen for copilot responses
+        document.addEventListener('copilot-response', (e) => {
+            if (this.copilotChatMode) {
+                this.printOutput(`[COPILOT] ${e.detail.response}`, 'copilot-msg');
             }
         });
     }
@@ -51,8 +64,16 @@ export class MatrixTerminal extends HTMLElement {
                 .system { color: #88ff88; }
                 .error { color: #ff3333; text-shadow: 0 0 5px #ff0000; }
                 .chat-msg { color: #00ffff; text-shadow: 0 0 5px #00aaaa; }
+                .copilot-msg { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+                .user-msg { color: #ffff00; text-shadow: 0 0 5px #aaaa00; }
                 #terminal-input-line { display: flex; align-items: center; }
                 .prompt { margin-right: 10px; font-weight: bold; }
+                .copilot-prompt { 
+                    margin-right: 10px; 
+                    font-weight: bold; 
+                    color: #ff00ff;
+                    text-shadow: 0 0 5px #ff00ff;
+                }
                 #cmd-input {
                     background: transparent; border: none; outline: none;
                     color: inherit; font-family: inherit; font-size: 1rem;
@@ -140,6 +161,24 @@ export class MatrixTerminal extends HTMLElement {
     }
 
     processCommand(tokens) {
+        // Si estamos en modo chat con copilot, manejar diferente
+        if (this.copilotChatMode) {
+            const message = tokens.join(' ');
+            
+            // Comandos especiales para salir del chat
+            if (message.toLowerCase() === 'exit' || message.toLowerCase() === 'quit' || message.toLowerCase() === 'bye') {
+                this.disableCopilotChatMode();
+                return;
+            }
+            
+            // Mostrar mensaje del usuario
+            this.printOutput(`[YOU] ${message}`, 'user-msg');
+            
+            // Enviar mensaje al copilot
+            document.dispatchEvent(new CustomEvent('copilot-message', { detail: { message }}));
+            return;
+        }
+
         const base = tokens[0].toLowerCase();
         let dispatched = false;
 
@@ -155,6 +194,7 @@ export class MatrixTerminal extends HTMLElement {
                 this.printOutput("  say <msg>                           - Broadcast message to current channel");
                 this.printOutput("  create-channel <name> <pub|priv> [pwd] [aiKey] - Create a channel");
                 this.printOutput("  switch-shell <role>                 - Change identity (e.g., security)");
+                this.printOutput("  copilot                             - Open AI chat interface");
                 break;
             case 'clear': 
                 this.outputElement.innerHTML = ''; 
@@ -184,6 +224,9 @@ export class MatrixTerminal extends HTMLElement {
                 }}));
                 dispatched = true;
                 break;
+            case 'copilot':
+                this.enableCopilotChatMode();
+                break;
             case 'map':
             case 'constellation':
             case 'post-code':
@@ -212,6 +255,43 @@ export class MatrixTerminal extends HTMLElement {
             this.printOutput(line, 'system');
         }
         this.inputLine.style.display = 'flex';
+        this.inputElement.focus();
+    }
+
+    enableCopilotChatMode() {
+        this.copilotChatMode = true;
+        this.printOutput("", 'system');
+        this.printOutput("═══════════════════════════════════════", 'system');
+        this.printOutput("   NEURAL LINK CHAT INTERFACE ACTIVE", 'copilot-msg');
+        this.printOutput("═══════════════════════════════════════", 'system');
+        this.printOutput("Type 'exit', 'quit', or 'bye' to return to normal mode.", 'system');
+        this.printOutput("", 'system');
+        
+        // Cambiar el prompt
+        const promptElement = this.shadowRoot.querySelector('.prompt');
+        if (promptElement) {
+            promptElement.textContent = 'copilot@matrix-os:~$';
+            promptElement.classList.remove('prompt');
+            promptElement.classList.add('copilot-prompt');
+        }
+        
+        this.inputElement.focus();
+    }
+
+    disableCopilotChatMode() {
+        this.copilotChatMode = false;
+        this.printOutput("", 'system');
+        this.printOutput("Neural link chat interface closed. Returning to normal mode.", 'system');
+        this.printOutput("", 'system');
+        
+        // Restaurar el prompt original
+        const promptElement = this.shadowRoot.querySelector('.copilot-prompt');
+        if (promptElement) {
+            promptElement.textContent = 'operator@matrix-os:~$';
+            promptElement.classList.remove('copilot-prompt');
+            promptElement.classList.add('prompt');
+        }
+        
         this.inputElement.focus();
     }
 }
